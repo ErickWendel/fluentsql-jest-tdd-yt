@@ -1,4 +1,4 @@
-export default class FluentSQLBuilder {
+class FluentSQLBuilder {
     #database = [];
     #limit = 0;
     #select = [];
@@ -6,18 +6,20 @@ export default class FluentSQLBuilder {
     #orderBy = '';
     #groupBy = '';
 
-    constructor({ database }) {
+    constructor(database) {
         this.#database = database;
     }
 
     static for(database) {
-        return new FluentSQLBuilder({ database });
+        return new FluentSQLBuilder(database);
     }
+
     limit(max) {
         this.#limit = max;
 
         return this;
     }
+
     select(props) {
         this.#select = props;
 
@@ -25,20 +27,12 @@ export default class FluentSQLBuilder {
     }
 
     where(query) {
-        // {category: 'developer'}
-        // {category: /dev/}
-
         const [[prop, selectedValue]] = Object.entries(query);
+
         const whereFilter =
             selectedValue instanceof RegExp
                 ? selectedValue
                 : new RegExp(selectedValue);
-
-        /*
-        [
-            [category, 'developer']
-        ]
-        */
 
         this.#where.push({ prop, filter: whereFilter });
 
@@ -72,6 +66,7 @@ export default class FluentSQLBuilder {
     #performSelect(item) {
         const currentItem = {};
         const entries = Object.entries(item);
+
         for (const [key, value] of entries) {
             if (this.#select.length && !this.#select.includes(key)) continue;
 
@@ -115,4 +110,8 @@ export default class FluentSQLBuilder {
 
         return realfinalResult;
     }
+}
+
+export default function of(database) {
+    return new FluentSQLBuilder(database);
 }
